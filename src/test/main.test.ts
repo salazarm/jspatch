@@ -14,8 +14,6 @@ describe("Mock", () => {
       const result2 = useCar();
       expect(result2).toBe({
         randomHook: obj,
-        value1: NOT_PATCHED,
-        value2: NOT_PATCHED,
       });
 
       unpatch();
@@ -23,8 +21,6 @@ describe("Mock", () => {
       const result3 = useCar();
       expect(result3).toBe({
         randomHook: NOT_PATCHED,
-        value1: NOT_PATCHED,
-        value2: NOT_PATCHED,
       });
     });
 
@@ -36,14 +32,10 @@ describe("Mock", () => {
       const otherCar = useOtherCar();
       expect(car).toBe({
         randomHook: obj,
-        value1: NOT_PATCHED,
-        value2: NOT_PATCHED,
       });
 
       expect(otherCar).toBe({
         randomHook: NOT_PATCHED,
-        value1: NOT_PATCHED,
-        value2: NOT_PATCHED,
       });
 
       unpatch();

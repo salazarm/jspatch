@@ -3,9 +3,6 @@ const notImplemented = (..._args) => {
 };
 const useHook = notImplemented;
 
-const value1 = "Not patched";
-const value2 = "Not patched";
-
 export function useCar() {
   const randomHook = useHook();
   return { randomHook, value1, value2 };
