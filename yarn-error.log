@@ -1,0 +1,43 @@
+Arguments: 
+  /Users/marcosalazar/.nvm/versions/node/v16.14.2/bin/node /usr/local/bin/yarn add jest-transformer
+
+PATH: 
+  /Users/marcosalazar/.nvm/versions/node/v16.14.2/bin:/usr/local/bin:/Users/marcosalazar/.pyenv/bin:/Users/marcosalazar/.nvm/versions/node/v16.14.2/bin:/usr/local/bin:/usr/local/sbin:/Users/marcosalazar/.nvm/versions/node/v16.14.2/bin:/usr/local/Cellar/pyenv-virtualenv/1.1.5/shims:/Users/marcosalazar/.pyenv/shims:/Users/marcosalazar/.pyenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/marcosalazar/.nvm/versions/node/v16.14.2/bin:/Users/marcosalazar/.pyenv/bin:/usr/local/Cellar/pyenv-virtualenv/1.1.5/shims:/usr/local/opt/fzf/bin
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  16.14.2
+
+Platform: 
+  darwin arm64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/jest-transformer: Not found
+      at Request.params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:66988:18)
+      at Request.self.callback (/usr/local/lib/node_modules/yarn/lib/cli.js:140662:22)
+      at Request.emit (node:events:526:28)
+      at Request.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141634:10)
+      at Request.emit (node:events:526:28)
+      at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141556:12)
+      at Object.onceWrapper (node:events:645:28)
+      at IncomingMessage.emit (node:events:538:35)
+      at endReadableNT (node:internal/streams/readable:1345:12)
+      at processTicksAndRejections (node:internal/process/task_queues:83:21)
+
+npm manifest: 
+  {
+    "name": "jsmock",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "https://github.com/salazarm/jsmock.git",
+    "author": "Marco Salazar <marco@elementl.com>",
+    "license": "MIT"
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

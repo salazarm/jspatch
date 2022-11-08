@@ -1,0 +1,11 @@
+{
+  "name": "jsmock",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/salazarm/jsmock.git",
+  "author": "Marco Salazar <marco@elementl.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.18.6"
+  }
+}
