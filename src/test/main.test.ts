@@ -45,6 +45,8 @@ describe("Mock", () => {
         value1: NOT_PATCHED,
         value2: NOT_PATCHED,
       });
+
+      unpatch();
     });
   });
 });
