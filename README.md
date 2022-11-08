@@ -1,5 +1,5 @@
 # jsmock
 
-Jest mocking library inspired by mock from python
+Jest transform based mocking library inspired by mock from python
 
 WIP
