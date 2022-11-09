@@ -36,14 +36,25 @@ function patchingTransformer(filename) {
             return;
           }
           patches.forEach((patch) => {
-            console.log("creating patch for", patch);
+            const patchHook = ts.transform(sourceFile, [patchHookTransform]);
             const bindingPath = patch.split(".");
-            debugger;
-            let bindings = path.scope.bindings;
-            for (let i = 0; i < bindingPath++; i++) {
-              /**
-               * TODO
-               */
+            let bindings = path.scope.bindings[bindingPath[0]];
+            for (let i = 1; i < bindingPath.length; i++) {
+              if (bindings.path.isFunctionDeclaration()) {
+                const nodes = bindings.path.node.body?.body || [];
+                for (const node of nodes) {
+                  if (node.type !== "VariableDeclaration") {
+                    return;
+                    // Need to handle destructing cases, assume its not destructuring for now
+                  }
+                  const id = node?.declarations?.[0]?.id;
+                  if (id.type !== "Identifier" || id.name !== bindingPath[i]) {
+                    return;
+                  }
+                  console.log("found node", id);
+                  debugger;
+                }
+              }
             }
           });
         },
@@ -61,6 +72,32 @@ function getPatchesForFile(filename) {
   });
   return Array.from(newSet);
 }
+
+console.log("creatingProgram from", __dirname + "/patch-hook.js");
+const patchFile = __dirname + "/patch-hook.js";
+const program = ts.createProgram([patchFile], {
+  allowJs: true,
+});
+const sourceFile = program.getSourceFile(patchFile);
+
+const patchHookTransform = (context) => {
+  const visit = (node) => {
+    switch (node?.name?.escapedText) {
+      case "___PATCH_FACTORY__": {
+        debugger;
+      }
+      case "___PATCH_GETTER__": {
+        debugger;
+      }
+
+      case "{ORIGINAL_IMPLEMENTATION_PLACEHOLDER}": {
+        debugger;
+      }
+    }
+    return node;
+  };
+  return (node) => ts.visitNode(node, visit);
+};
 
 module.exports = {
   getCacheKey(fileData, filename, ...rest) {
@@ -94,3 +131,10 @@ module.exports = {
     // }
   },
 };
+
+function isNodeExported(node) {
+  return (
+    (ts.getCombinedModifierFlags(node) & ts.ModifierFlags.Export) !== 0 ||
+    (!!node.parent && node.parent.kind === ts.SyntaxKind.SourceFile)
+  );
+}
