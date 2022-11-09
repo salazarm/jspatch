@@ -7,7 +7,7 @@ Are you tired of needing to setup `TestProviders` and loading heavy dependencies
 
 Don't you wish you could just mock that hook call directly instead of digging through its implementation to figure out what context it needs to give you the result you want to test?
 
-This this might be the mocking library for you!
+Then this might be the mocking library for you!
 
 
 Say you have this component:
