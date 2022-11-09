@@ -1,5 +1,4 @@
 {
-  "extends": "@tsconfig/node14/tsconfig.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
@@ -21,6 +20,7 @@
     "esModuleInterop": false,
     "isolatedModules": true,
     "skipLibCheck": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "target": "ESNext"
   }
 }
