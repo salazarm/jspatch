@@ -11,7 +11,7 @@ This this might be the mocking library for you!
 
 
 Say you have this component:
-```
+```javascript
 export function MyComponent() {
   const someContextState = useContext(SomeContext);
   const state = useDataProvider(someKey);
@@ -33,7 +33,7 @@ Previously you would have to setup `SomeContext` and hook into the implementatio
 
 Now you can diretly dependency inject `useDataProvider` and `useContext` rather than needing to know anything about how they work.
 
-```
+```javascript
 it('renders the correct case', async () => {
   // Patch the hooks directly
   const unpatchDataProvider = patch('src/components/MyComponent', 'MyComponent.useDataProvider', () => {
