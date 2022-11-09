@@ -35,7 +35,7 @@ Now you can diretly dependency inject `useDataProvider` and `useContext` rather 
 
 ```
 it('renders the correct case', async () => {
-  
+  // Patch the hooks directly
   const unpatchDataProvider = patch('src/components/MyComponent', 'MyComponent.useDataProvider', () => {
     return (key) => {
       return CASE_1_STATE;
@@ -48,11 +48,15 @@ it('renders the correct case', async () => {
       }
     }
   });
+  
+  // Render the component
   await act(() => {
     render(<MyComponent />
   });
   
+  // Remember to unpatch for the next test!
   unpatchDataProvider();
+  unpatchSomeContext();
   expect(screen.getByTestId("case1-component")).toBeVisible();
 });
 
