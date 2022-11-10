@@ -232,12 +232,11 @@ function getPatchesForFile(filename) {
 
 module.exports = {
   getCacheKey(fileData, filename, ...rest) {
-    return Math.random().toString();
-    // return crypto
-    //   .createHash("md5")
-    //   .update(fileData)
-    //   .update(getPatchesForFile(filename).toString())
-    //   .digest();
+    return crypto
+      .createHash("md5")
+      .update(fileData)
+      .update(getPatchesForFile(filename).toString())
+      .digest();
   },
   process,
 };
