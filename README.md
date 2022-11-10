@@ -1,15 +1,6 @@
-# jspatch
+# jspatch 
 
-Jest transform based patching library inspired by [mock.patch](https://docs.python.org/3/library/unittest.mock.html#patch) from python
-
-
-
-
-Are you tired of needing to setup `TestProviders` and loading heavy dependencies just to test to your components (looking at you `apollo-graphql`)?
-
-Don't you wish you could just mock that hook call directly instead of digging through its implementation to figure out what context it needs to give you the result you want to test?
-
-Then this might be the patching library for you!
+JSPatch is a library inspired by [mock.patch](https://docs.python.org/3/library/unittest.mock.html#patch) from python. It leverages Jest code transformations in order to modify files under test so that we can dynamically patch arbitrary identifiers.
 
 
 Say you have this component:
@@ -31,7 +22,7 @@ export function MyComponent() {
 }
 ```
 
-Previously you would have to setup `SomeContext` and hook into the implementation of `useDataProvider` so that you can make it return a mock.
+Before this library you would have to setup `SomeContext` and hook into the implementation of `useDataProvider` so that you can make it return data corresponding to the state you're trying to test.
 
 Now you can diretly dependency inject `useDataProvider` and `useContext` rather than needing to know anything about how they work.
 
