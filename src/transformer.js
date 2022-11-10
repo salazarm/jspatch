@@ -18,18 +18,27 @@ function process(src, filename) {
 
   const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
 
-  const modifiedSource = printer.printNode(
-    ts.EmitHint.Unspecified,
-    modifiedProgram,
-    modifiedProgram
-  );
-
-  const result = babelCore.transformSync(modifiedSource, {
-    presets: ["@babel/preset-typescript"],
-    filename: filename,
-  });
-
-  return result;
+  try {
+    const modifiedSource = printer.printNode(
+      ts.EmitHint.Unspecified,
+      modifiedProgram,
+      modifiedProgram
+    );
+    if (getPatchesForFile(filename).length) {
+      console.log(modifiedSource);
+    }
+    return babelCore.transformSync(modifiedSource, {
+      presets: ["@babel/preset-typescript"],
+      filename: filename,
+    });
+  } catch (e) {
+    console.log("error", e);
+    console.error(e);
+    return babelCore.transformSync(src, {
+      presets: ["@babel/preset-typescript"],
+      filename: filename,
+    });
+  }
 }
 
 function testFilePatchRecorder(program) {
@@ -127,7 +136,9 @@ function getNodesToPatchRecursively(parentNode, bindingPath, pathIndex) {
           ...getNodesToPatchRecursively(parent, bindingPath, pathIndex + 1)
         );
       } else {
-        nodes.push(parent);
+        if (!ts.isVariableDeclaration(parent)) {
+          nodes.push(node);
+        }
       }
     }
   });
