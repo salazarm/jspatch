@@ -24,15 +24,14 @@ function process(src, filename) {
       modifiedProgram,
       modifiedProgram
     );
-    if (getPatchesForFile(filename).length) {
-      console.log(modifiedSource);
-    }
+    // if (getPatchesForFile(filename).length) {
+    //   console.log(modifiedSource);
+    // }
     return babelCore.transformSync(modifiedSource, {
       presets: ["@babel/preset-typescript"],
       filename: filename,
     });
   } catch (e) {
-    console.log("error", e);
     console.error(e);
     return babelCore.transformSync(src, {
       presets: ["@babel/preset-typescript"],
@@ -59,10 +58,25 @@ function testFilePatchRecorderVisitor(node) {
   patches[filepath.text].add(filepath.text + "|" + patchPath.text);
 }
 
-const patchFile = __dirname + "/patch-hook.js";
-const program = ts.createProgram([patchFile], {
+// Counter for generating unique node ids
+let __nodeId = 0;
+const nodeToId = new WeakMap();
+function getNodeId(node) {
+  if (!nodeToId.has(node)) {
+    nodeToId.set(node, "id:" + __nodeId++);
+  }
+  return nodeToId.get(node);
+}
+
+const patchIdToNodesFile = __dirname + "/patchIdToNodesTemplate.js";
+const patchIdToNodesProgram = ts.createProgram([patchIdToNodesFile], {
   allowJs: true,
 });
+const patchIdToNodesSourceFile =
+  patchIdToNodesProgram.getSourceFile(patchIdToNodesFile);
+
+const patchFile = __dirname + "/patchTemplate.js";
+const program = ts.createProgram([patchFile], { allowJs: true });
 
 const patchSourceFile = program.getSourceFile(patchFile);
 
@@ -71,7 +85,11 @@ function filePatcher(program, filename) {
   if (!patches.length) {
     return program;
   }
+
   const patchesToApply = new Map();
+
+  const patchIdToNodes = {};
+
   patches.forEach((patchID) => {
     const [_, patch] = patchID.split("|");
     const nodesToPatch = getNodesToPatchRecursively(
@@ -79,14 +97,29 @@ function filePatcher(program, filename) {
       patch.split("."),
       0
     );
-    nodesToPatch.forEach((node) => {
+    patchIdToNodes[patchID] = nodesToPatch;
+  });
+
+  const patchIdToNodeIds = {};
+
+  patches.forEach((patchID) => {
+    patchIdToNodes[patchID].forEach((node) => {
+      if (nodeToId.has(node)) {
+        patchIdToNodeIds[patchID] = patchIdToNodeIds[patchID] || [];
+        patchIdToNodeIds[patchID].push(getNodeId(node));
+        return;
+      }
+      const nodeID = getNodeId(node);
+      patchIdToNodeIds[patchID] = patchIdToNodeIds[patchID] || [];
+      patchIdToNodeIds[patchID].push(nodeID);
+
       const result = ts.transform(patchSourceFile, [
         (context) => {
           const visitor = (visitingNode, parent) => {
             if (ts.isStringLiteral(visitingNode)) {
               switch (visitingNode.text) {
                 case "{PATCH_ID}": {
-                  return context.factory.createStringLiteral(patchID);
+                  return context.factory.createStringLiteral(nodeID);
                 }
                 case "{ORIGINAL_IMPLEMENTATION_PLACEHOLDER}": {
                   return node;
@@ -101,29 +134,71 @@ function filePatcher(program, filename) {
       const modifiedSourceFile = result.transformed[0].getSourceFile(filename);
       let patchNode;
       ts.forEachChildRecursively(modifiedSourceFile, (node) => {
-        if (node?.arguments?.[0]?.text === patchID) {
+        if (node?.arguments?.[0]?.text == nodeID) {
           patchNode = node;
         }
       });
       if (!patchNode) {
-        throw new Error("Unexpected error, could not find patched template");
+        throw new Error(
+          "Unexpected error, could not find patched template for node id:" +
+            nodeID
+        );
       }
       patchesToApply.set(node, patchNode);
     });
   });
 
-  const result = ts.transform(program, [
-    (context) => {
-      const visitor = (node) => {
-        if (patchesToApply.has(node)) {
-          return patchesToApply.get(node);
-        }
-        return ts.visitEachChild(node, visitor, context);
-      };
-      return visitor;
-    },
-  ]);
-  return result.transformed[0].getSourceFile(filename);
+  const patchIdToNodesStatements = [];
+  patches.forEach((patchID) => {
+    patchIdToNodesStatements.push(
+      ts
+        .transform(patchIdToNodesSourceFile, [
+          (context) => {
+            const visitor = (visitingNode) => {
+              if (ts.isStringLiteral(visitingNode)) {
+                switch (visitingNode.text) {
+                  case "{PATCH_ID}": {
+                    return context.factory.createStringLiteral(patchID);
+                  }
+                  case "{NODE_IDS}": {
+                    return context.factory.createArrayLiteralExpression(
+                      patchIdToNodeIds[patchID].map((id) =>
+                        context.factory.createStringLiteral(id)
+                      )
+                    );
+                  }
+                }
+              }
+              return ts.visitEachChild(visitingNode, visitor, context);
+            };
+            return visitor;
+          },
+        ])
+        .transformed[0].getSourceFile(patchIdToNodesSourceFile)
+    );
+  });
+
+  const transformed = ts
+    .transform(program, [
+      (context) => {
+        let rootNode;
+        let didAddStatements = false;
+        const visitor = (node) => {
+          if (node.kind === 305 && !didAddStatements) {
+            didAddStatements = true;
+            node.statements.push(...patchIdToNodesStatements);
+          }
+          if (patchesToApply.has(node)) {
+            return patchesToApply.get(node);
+          }
+          return ts.visitEachChild(node, visitor, context);
+        };
+        return visitor;
+      },
+    ])
+    .transformed[0].getSourceFile(filename);
+
+  return transformed;
 }
 
 function getNodesToPatchRecursively(parentNode, bindingPath, pathIndex) {
@@ -149,7 +224,7 @@ function getPatchesForFile(filename) {
   const newSet = new Set();
   Object.keys(patches).forEach((key) => {
     if (new RegExp(key + ".[jt]sx?", "g").test(filename)) {
-      newSet.add(...patches[key]);
+      patches[key].forEach((patch) => newSet.add(patch));
     }
   });
   return Array.from(newSet);

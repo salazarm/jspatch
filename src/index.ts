@@ -4,15 +4,15 @@ const patches: Record<string, { factory: () => any; value: any }> = {};
 const noFactory = () => {};
 
 global.__jsMockStubHook = (
-  patchId: string,
+  nodeId: string,
   originalImplementation: () => any
 ) => {
-  const patch = patches[patchId];
+  const patch = patches[nodeId];
   if (!patch) {
-    if (!originalValue[patchId]) {
-      originalValue[patchId] = originalImplementation();
+    if (!originalValue[nodeId]) {
+      originalValue[nodeId] = originalImplementation();
     }
-    return originalValue[patchId];
+    return originalValue[nodeId];
   }
   if (patch.factory !== noFactory) {
     patch.value = patch.factory();
@@ -21,11 +21,23 @@ global.__jsMockStubHook = (
   return patch.value;
 };
 
+global.__jsMockPatchIdToNodes = global.__jsMockPatchIdToNodes || {};
+
 export function __patch(filepath: string, varpath: string, factory: () => any) {
-  const key = getKey(filepath, varpath);
-  patches[key] = { factory, value: null };
+  const patchId = getKey(filepath, varpath);
+  const nodesToPatch = global.__jsMockPatchIdToNodes[patchId];
+  const obj = { factory, value: null };
+  if (nodesToPatch) {
+    nodesToPatch.forEach((nodeId) => {
+      patches[nodeId] = obj;
+    });
+  }
   return () => {
-    delete patches[key];
+    if (nodesToPatch) {
+      nodesToPatch.forEach((nodeId) => {
+        delete patches[nodeId];
+      });
+    }
   };
 }
 
