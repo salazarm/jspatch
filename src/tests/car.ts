@@ -3,7 +3,6 @@ const notImplemented = (..._args: any[]) => {
 };
 const useHook = notImplemented;
 
-console.log("factory: car.ts");
 export function useCar() {
   const randomHook = useHook();
   return { randomHook };
