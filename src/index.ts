@@ -3,7 +3,7 @@ const patches: Record<string, { factory: () => any; value: any }> = {};
 
 const noFactory = () => {};
 
-global.__jsMockStubHook = (
+(global as any).__jsMockStubHook = (
   nodeId: string,
   originalImplementation: () => any
 ) => {
@@ -21,20 +21,21 @@ global.__jsMockStubHook = (
   return patch.value;
 };
 
-global.__jsMockPatchIdToNodes = global.__jsMockPatchIdToNodes || {};
+(global as any).__jsMockPatchIdToNodes =
+  (global as any).__jsMockPatchIdToNodes || {};
 
 export function __patch(filepath: string, varpath: string, factory: () => any) {
   const patchId = getKey(filepath, varpath);
-  const nodesToPatch = global.__jsMockPatchIdToNodes[patchId];
+  const nodesToPatch = (global as any).__jsMockPatchIdToNodes[patchId];
   const obj = { factory, value: null };
   if (nodesToPatch) {
-    nodesToPatch.forEach((nodeId) => {
+    nodesToPatch.forEach((nodeId: string) => {
       patches[nodeId] = obj;
     });
   }
   return () => {
     if (nodesToPatch) {
-      nodesToPatch.forEach((nodeId) => {
+      nodesToPatch.forEach((nodeId: string) => {
         delete patches[nodeId];
       });
     }
