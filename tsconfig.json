@@ -22,7 +22,8 @@
 
     "skipLibCheck": false,
     "resolveJsonModule": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "checkJs": false
   },
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["build/**/*"]
