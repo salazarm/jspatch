@@ -1,6 +1,8 @@
 import * as ts from "typescript";
 import * as babelCore from "@babel/core";
 import * as crypto from "crypto";
+import * as fs from "fs";
+import * as path from "node:path";
 
 import api from "./api";
 
@@ -56,6 +58,10 @@ function process(src: string, filename: string) {
   }
 }
 
+/**
+ * Processes test files and records which files need to be patched aswell as the
+ * variable selector.
+ */
 function testFilePatchRecorder(program: ts.SourceFile) {
   forEachChildRecursively(program, testFilePatchRecorderVisitor);
 }
@@ -67,12 +73,12 @@ function testFilePatchRecorderVisitor(node: ts.Node) {
   if (node.expression.escapedText !== "___patch") {
     return;
   }
-  const [filepath, patchPath] = node.arguments || [];
-  if (!ts.isStringLiteral(filepath) || !ts.isStringLiteral(patchPath)) {
+  const [filepath, variableSelector] = node.arguments || [];
+  if (!ts.isStringLiteral(filepath) || !ts.isStringLiteral(variableSelector)) {
     throw new Error("Expecting __patch to have a filepath and a patch path");
   }
   patches[filepath.text] = patches[filepath.text] || new Set();
-  patches[filepath.text].add(filepath.text + "|" + patchPath.text);
+  patches[filepath.text].add(filepath.text + "|" + variableSelector.text);
 }
 
 // Counter for generating unique node ids
@@ -223,16 +229,16 @@ function filePatcher(program: ts.SourceFile, filename: string) {
 
 function getNodesToPatchRecursively(
   parentNode: ts.Node,
-  bindingPath: string[],
+  variableSelector: string[],
   pathIndex: number
 ) {
   let nodes: ts.Node[] = [];
-  const nextBinding = bindingPath[pathIndex];
+  const nextBinding = variableSelector[pathIndex];
   forEachChildRecursively(parentNode, (node: ts.Node, parent: ts.Node) => {
     if (ts.isIdentifier(node) && node.escapedText === nextBinding) {
-      if (bindingPath[pathIndex + 1]) {
+      if (variableSelector[pathIndex + 1]) {
         nodes.push(
-          ...getNodesToPatchRecursively(parent, bindingPath, pathIndex + 1)
+          ...getNodesToPatchRecursively(parent, variableSelector, pathIndex + 1)
         );
       } else {
         if (!ts.isVariableDeclaration(parent)) {
@@ -254,9 +260,19 @@ function getPatchesForFile(filename: string) {
   return Array.from(newSet);
 }
 
+const packageJson = fs.readFileSync(
+  path.join(__dirname, "../../package.json"),
+  "utf8"
+);
+if (!packageJson) {
+  throw new Error("JSPatch: Could not find package.json");
+}
+const VERSION = JSON.parse(packageJson).version;
+
 function getCacheKey(fileData: any, filename: string) {
   return crypto
     .createHash("md5")
+    .update(VERSION)
     .update(fileData)
     .update(getPatchesForFile(filename).toString())
     .digest();
