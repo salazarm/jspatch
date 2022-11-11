@@ -2,9 +2,10 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
     "importsNotUsedAsValues": "error",
     "stripInternal": true,
+    "module": "commonjs",
+    "allowJs": true,
 
     "strict": true,
 
@@ -18,9 +19,11 @@
     "moduleResolution": "node",
     /* This needs to be false so our types are possible to consume without setting this */
     "esModuleInterop": false,
-    "isolatedModules": true,
+
     "skipLibCheck": false,
     "resolveJsonModule": true,
     "target": "ESNext"
-  }
+  },
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["build/**/*"]
 }

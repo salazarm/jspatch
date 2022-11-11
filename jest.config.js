@@ -4,6 +4,7 @@ module.exports = {
   testEnvironment: "node",
   transform: {
     // "^.+\\.[jt]sx?$": "babel-jest",
-    "^.+\\.tsx?$": "<rootDir>/src/transformer.js",
+    "^.+\\.[jt]sx?$": "<rootDir>/build/src/index.js",
   },
+  collectCoverageFrom: ["**/*.{js,jsx}", "!/node_modules/s**", "!/build/**"],
 };
