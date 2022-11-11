@@ -6,5 +6,9 @@ module.exports = {
     // "^.+\\.[jt]sx?$": "babel-jest",
     "^.+\\.[jt]sx?$": "<rootDir>/build/src/index.js",
   },
-  collectCoverageFrom: ["**/*.{js,jsx}", "!/node_modules/s**", "!/build/**"],
+  collectCoverageFrom: [
+    "**/*.{js,jsx,ts,tsx}",
+    "!/node_modules/s**",
+    "!/build/**",
+  ],
 };

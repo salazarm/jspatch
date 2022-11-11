@@ -9,7 +9,7 @@
   "scripts": {
     "prepublish": "rm -rf ./build; tsc --outdir build"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@babel/preset-typescript": "^7.18.6",
     "@types/jest": "^29.2.2",
     "node-test": "^1.4.6",
