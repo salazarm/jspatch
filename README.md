@@ -61,7 +61,7 @@ it('renders the correct case', async () => {
 `npm install jspatch`
 
 in `jest.config.js` add:
-```
+```javascript
 module.exports = {
   transform: {
     "^.+\\.[jt]sx?$": "jspatch",
@@ -72,7 +72,7 @@ module.exports = {
 
 In your test file:
 
-```
+```javascript
 import jspatch from "jspatch";
 const { __patch } = jspatch;
 
