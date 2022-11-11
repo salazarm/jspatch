@@ -53,5 +53,29 @@ it('renders the correct case', async () => {
   expect(screen.getByTestId("case1-component")).toBeVisible();
 });
 
+```
 
+
+# Installation
+
+`npm install jspatch`
+
+in `jest.config.js` add:
+```javascript
+module.exports = {
+  transform: {
+    "^.+\\.[jt]sx?$": "jspatch",
+  },
+};
+```
+
+
+In your test file:
+
+```javascript
+import jspatch from "jspatch";
+const { __patch } = jspatch;
+
+
+__patch("path/to/file", "component.useUserEmailHook", () => "test@email.com"
 ```
