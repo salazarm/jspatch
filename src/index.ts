@@ -1,12 +1,18 @@
 import * as ts from "typescript";
-import * as babelCore from "@babel/core";
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "node:path";
+import * as babelJest from "babel-jest";
 
 import api from "./api";
+import type { TransformOptions } from "@jest/transform";
+import type { TransformOptions as BabelTransformOptions } from "@babel/core";
 
 const patches: Record<string, Set<string>> = {};
+
+const babelJestTransformer = babelJest.createTransformer({
+  presets: [[require.resolve("babel-preset-react-app")]],
+});
 
 /**
  * Copied from https://github.com/ajafff/TypeScript/blob/af19b77ca55175c6239089bcb64e31c6b09cdf0f/src/compiler/parser.ts#L560.
@@ -23,8 +29,11 @@ const forEachChildRecursively = (ts as any).forEachChildRecursively.bind(
   ) => T | "skip" | undefined
 ) => T | undefined;
 
-function process(src: string, filename: string) {
-  console.log(process, file);
+function process(
+  src: string,
+  filename: string,
+  options: TransformOptions<BabelTransformOptions>
+) {
   const isTest = filename.includes(".test.ts");
   const program = ts.createSourceFile(filename, src, ts.ScriptTarget.Latest);
   let modifiedProgram;
@@ -45,14 +54,7 @@ function process(src: string, filename: string) {
   // if (getPatchesForFile(filename).length) {
   // console.log(modifiedSource);
   // }
-  return babelCore.transformSync(modifiedSource, {
-    presets: [
-      ["@babel/preset-env", { targets: { node: "current" } }],
-      "@babel/preset-react",
-      "@babel/preset-typescript",
-    ],
-    filename: filename,
-  });
+  return babelJestTransformer.process(modifiedSource, filename, options);
 }
 
 /**
