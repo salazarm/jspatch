@@ -24,6 +24,7 @@ const forEachChildRecursively = (ts as any).forEachChildRecursively.bind(
 ) => T | undefined;
 
 function process(src: string, filename: string) {
+  console.log(process, file);
   const isTest = filename.includes(".test.ts");
   const program = ts.createSourceFile(filename, src, ts.ScriptTarget.Latest);
   let modifiedProgram;
@@ -36,26 +37,22 @@ function process(src: string, filename: string) {
 
   const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
 
-  try {
-    const modifiedSource = printer.printNode(
-      ts.EmitHint.Unspecified,
-      modifiedProgram,
-      modifiedProgram
-    );
-    // if (getPatchesForFile(filename).length) {
-    // console.log(modifiedSource);
-    // }
-    return babelCore.transformSync(modifiedSource, {
-      presets: ["@babel/preset-typescript"],
-      filename: filename,
-    });
-  } catch (e) {
-    console.error(e);
-    return babelCore.transformSync(src, {
-      presets: ["@babel/preset-typescript"],
-      filename: filename,
-    });
-  }
+  const modifiedSource = printer.printNode(
+    ts.EmitHint.Unspecified,
+    modifiedProgram,
+    modifiedProgram
+  );
+  // if (getPatchesForFile(filename).length) {
+  // console.log(modifiedSource);
+  // }
+  return babelCore.transformSync(modifiedSource, {
+    presets: [
+      ["@babel/preset-env", { targets: { node: "current" } }],
+      "@babel/preset-react",
+      "@babel/preset-typescript",
+    ],
+    filename: filename,
+  });
 }
 
 /**
