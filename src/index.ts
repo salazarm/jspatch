@@ -11,11 +11,7 @@ import type { TransformOptions as BabelTransformOptions } from "@babel/core";
 const patches: Record<string, Set<string>> = {};
 
 const babelJestTransformer = babelJest.createTransformer({
-  presets: [
-    ["@babel/preset-env", { targets: { node: "current" } }],
-    "@babel/preset-react",
-    ["@babel/preset-typescript", { runtime: "automatic" }],
-  ],
+  presets: [require.resolve("babel-preset-react-app")],
 });
 
 function forEachChildRecursively(
