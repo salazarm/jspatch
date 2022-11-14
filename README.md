@@ -29,18 +29,8 @@ Now you can diretly dependency inject `useDataProvider` and `useContext` rather 
 ```javascript
 it('renders the correct case', async () => {
   // Patch the hooks directly
-  const unpatchDataProvider = patch('src/components/MyComponent', 'MyComponent.useDataProvider', () => {
-    return (key) => {
-      return CASE_1_STATE;
-    }
-  });
-  const unpatchSomeContext = patch('src/components/MyComponent', 'MyComponent.useContext', () => {
-    return (context) => {
-      if (context === SomeContext) {
-        return SOME_CONTEXT_STATE_FIXTURE;
-      }
-    }
-  });
+  const unpatchDataProvider = patch('src/components/MyComponent', 'MyComponent.someContextState', () => CASE_1_STATE);
+  const unpatchSomeContext = patch('src/components/MyComponent', 'MyComponent.state', () =>SOME_CONTEXT_STATE_FIXTURE);
   
   // Render the component
   await act(() => {
