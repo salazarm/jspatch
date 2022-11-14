@@ -38,7 +38,7 @@ function process(
   filename: string,
   options: TransformOptions<BabelTransformOptions>
 ) {
-  const isTest = filename.includes(".test.ts");
+  const isTest = filename.includes(".test.");
   const program = ts.createSourceFile(filename, src, ts.ScriptTarget.Latest);
   let modifiedProgram;
   if (isTest) {
