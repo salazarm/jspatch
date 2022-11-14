@@ -226,7 +226,6 @@ function filePatcher(program: ts.SourceFile, filename: string) {
           try {
             return ts.visitEachChild(node, visitor, context);
           } catch (e) {
-            debugger;
             console.error("JSPatch: Failed to replace node in file", filename);
             return ts.visitEachChild(node, visitor, context);
           }
@@ -261,9 +260,6 @@ function getNodesToPatchRecursively(
           )
         );
       } else {
-        if (pathIndex > 0) {
-          debugger;
-        }
         if (parent && ts.isVariableDeclaration(parent)) {
           /**
            * If this is a declaration then patch the value instead of the identifier.
