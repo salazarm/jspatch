@@ -29,8 +29,8 @@ Now you can directly mock your variables:
 ```javascript
 it('renders the correct case', async () => {
   // Patch the hooks directly
-  const unpatchDataProvider = patch('src/components/MyComponent', 'MyComponent.someContextState', () => CASE_1_STATE);
-  const unpatchSomeContext = patch('src/components/MyComponent', 'MyComponent.state', () =>SOME_CONTEXT_STATE_FIXTURE);
+  const unpatchDataProvider = __patch('src/components/MyComponent', 'MyComponent.someContextState', () => CASE_1_STATE);
+  const unpatchSomeContext = __patch('src/components/MyComponent', 'MyComponent.state', () =>SOME_CONTEXT_STATE_FIXTURE);
   
   // Render the component
   await act(() => {
@@ -49,12 +49,12 @@ If you prefer you could also dependency inject `useDataProvider` and `useContext
 ```javascript
 it('renders the correct case', async () => {
   // Patch the hooks directly
-  const unpatchDataProvider = patch('src/components/MyComponent', 'MyComponent.useDataProvider', () => {
+  const unpatchDataProvider = __patch('src/components/MyComponent', 'MyComponent.useDataProvider', () => {
     return (key) => {
       return CASE_1_STATE;
     }
   });
-  const unpatchSomeContext = patch('src/components/MyComponent', 'MyComponent.useContext', () => {
+  const unpatchSomeContext = __patch('src/components/MyComponent', 'MyComponent.useContext', () => {
     return (context) => {
       if (context === SomeContext) {
         return SOME_CONTEXT_STATE_FIXTURE;
