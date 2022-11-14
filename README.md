@@ -45,7 +45,7 @@ it('renders the correct case', async () => {
 
 ```
 
-If you prefer you could also dependency inject `useDataProvider` and `useContext` (if you want to make assertions about arguments passed):
+If you prefer you could also dependency inject `useDataProvider` and `useContext` (if you want to make assertions about arguments passed in):
 ```javascript
 it('renders the correct case', async () => {
   // Patch the hooks directly
