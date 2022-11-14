@@ -6,23 +6,11 @@ const { __patch } = api;
 
 const NOT_PATCHED = "Not patched!";
 const obj = Symbol();
-// const TEST_TYPES = [
-//   { object: { hello: 0 } },
-//   (...args: any[]) => console.log(...args),
-//   null,
-//   false,
-//   1,
-//   "hello",
-//   true,
-//   Symbol(),
-// ];
-
 describe("Mock", () => {
   afterEach(() => {
     jest.resetModules();
   });
 
-  // TEST_TYPES.forEach((obj) => {
   it("can patch a value at the global scope", () => {
     const result1 = useCar();
     expect(result1).toEqual({
@@ -60,5 +48,4 @@ describe("Mock", () => {
 
     unpatch();
   });
-  // });
 });
