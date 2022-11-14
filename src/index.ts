@@ -14,6 +14,8 @@ const babelJestTransformer = babelJest.createTransformer({
   presets: [require.resolve("babel-preset-react-app")],
 });
 
+const DEBUG = false;
+
 function forEachChildRecursively(
   sourceFile: ts.SourceFile,
   parentNode: ts.Node,
@@ -34,12 +36,18 @@ function process(
   filename: string,
   options: TransformOptions<BabelTransformOptions>
 ) {
+  if (DEBUG) {
+    console.log("process", filename);
+  }
   const isTest = filename.includes(".test.");
   const program = ts.createSourceFile(filename, src, ts.ScriptTarget.Latest);
   let modifiedProgram;
   if (isTest) {
     testFilePatchRecorder(program);
     modifiedProgram = program; // we dont modify it
+    if (DEBUG) {
+      console.log("found patches", patches);
+    }
   } else {
     modifiedProgram = filePatcher(program, filename);
   }
@@ -51,9 +59,9 @@ function process(
     modifiedProgram,
     modifiedProgram
   );
-  // if (getPatchesForFile(filename).length) {
-  //   // console.log(modifiedSource);
-  // }
+  if (DEBUG && getPatchesForFile(filename).length) {
+    console.log(modifiedSource);
+  }
   return babelJestTransformer.process(modifiedSource, filename, options);
 }
 
@@ -105,7 +113,13 @@ const patchSourceFile = program.getSourceFile(patchFile);
 function filePatcher(program: ts.SourceFile, filename: string) {
   const patches = getPatchesForFile(filename);
   if (!patches.length) {
+    if (DEBUG) {
+      console.log("no patches", filename);
+    }
     return program;
+  }
+  if (DEBUG) {
+    console.log("has patches", filename);
   }
 
   const patchesToApply = new Map();
@@ -122,6 +136,10 @@ function filePatcher(program: ts.SourceFile, filename: string) {
     );
     patchIdToNodes[patchID] = nodesToPatch;
   });
+
+  if (DEBUG) {
+    console.log("patchIdToNodes", patchIdToNodes);
+  }
 
   const patchIdToNodeIds: Record<string, string[]> = {};
 
@@ -174,6 +192,10 @@ function filePatcher(program: ts.SourceFile, filename: string) {
       patchesToApply.set(node, patchNode);
     });
   });
+
+  if (DEBUG) {
+    console.log("patchIdToNodeIds", patchIdToNodeIds);
+  }
 
   const patchIdToNodesStatements: ts.SourceFile[] = [];
   patches.forEach((patchID) => {
@@ -271,10 +293,17 @@ function getNodesToPatchRecursively(
   return nodes;
 }
 
+const directorySeperatorRegex = /\\/g;
 function getPatchesForFile(filename: string) {
   const newSet = new Set<string>();
   Object.keys(patches).forEach((key) => {
-    if (new RegExp(key + ".[jt]sx?", "g").test(filename)) {
+    // Genius windows compatability: turn the backslashes into forward slashes
+    if (
+      new RegExp(
+        key.replaceAll(directorySeperatorRegex, "/") + ".[jt]sx?",
+        "g"
+      ).test(filename.replaceAll(directorySeperatorRegex, "/"))
+    ) {
       patches[key].forEach((patch) => newSet.add(patch));
     }
   });
@@ -291,6 +320,9 @@ if (!packageJson) {
 const VERSION = JSON.parse(packageJson).version;
 
 function getCacheKey(fileData: any, filename: string) {
+  if (DEBUG) {
+    return Math.random().toString();
+  }
   return crypto
     .createHash("md5")
     .update(VERSION)
