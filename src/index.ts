@@ -11,7 +11,11 @@ import type { TransformOptions as BabelTransformOptions } from "@babel/core";
 const patches: Record<string, Set<string>> = {};
 
 const babelJestTransformer = babelJest.createTransformer({
-  presets: [[require.resolve("babel-preset-react-app")]],
+  presets: [
+    ["@babel/preset-env", { targets: { node: "current" } }],
+    "@babel/preset-react",
+    ["@babel/preset-typescript", { runtime: "automatic" }],
+  ],
 });
 
 /**
@@ -269,12 +273,15 @@ if (!packageJson) {
 const VERSION = JSON.parse(packageJson).version;
 
 function getCacheKey(fileData: any, filename: string) {
-  return crypto
-    .createHash("md5")
-    .update(VERSION)
-    .update(fileData)
-    .update(getPatchesForFile(filename).toString())
-    .digest();
+  return (
+    Math.random().toString() ||
+    crypto
+      .createHash("md5")
+      .update(VERSION)
+      .update(fileData)
+      .update(getPatchesForFile(filename).toString())
+      .digest()
+  );
 }
 
 export default {
