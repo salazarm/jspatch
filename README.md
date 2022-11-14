@@ -24,17 +24,37 @@ export function MyComponent() {
 
 Before this library you would have to setup `SomeContext` and hook into the implementation of `useDataProvider` so that you can make it return data corresponding to the state you're trying to test.
 
-Now you can diretly dependency inject `useDataProvider` and `useContext` rather than needing to know anything about how they work.
+Now you can directly mock your variables:
 
 ```javascript
 it('renders the correct case', async () => {
   // Patch the hooks directly
-  const unpatchDataProvider = patch('src/components/MyComponent', 'MyComponent.useDataProvider', () => {
+  const unpatchDataProvider = __patch('src/components/MyComponent', 'MyComponent.someContextState', () => CASE_1_STATE);
+  const unpatchSomeContext = __patch('src/components/MyComponent', 'MyComponent.state', () =>SOME_CONTEXT_STATE_FIXTURE);
+  
+  // Render the component
+  await act(() => {
+    render(<MyComponent />
+  });
+  
+  // Remember to unpatch for the next test!
+  unpatchDataProvider();
+  unpatchSomeContext();
+  expect(screen.getByTestId("case1-component")).toBeVisible();
+});
+
+```
+
+If you prefer you could also dependency inject `useDataProvider` and `useContext` (if you want to make assertions about arguments passed in):
+```javascript
+it('renders the correct case', async () => {
+  // Patch the hooks directly
+  const unpatchDataProvider = __patch('src/components/MyComponent', 'MyComponent.useDataProvider', () => {
     return (key) => {
       return CASE_1_STATE;
     }
   });
-  const unpatchSomeContext = patch('src/components/MyComponent', 'MyComponent.useContext', () => {
+  const unpatchSomeContext = __patch('src/components/MyComponent', 'MyComponent.useContext', () => {
     return (context) => {
       if (context === SomeContext) {
         return SOME_CONTEXT_STATE_FIXTURE;
@@ -52,8 +72,8 @@ it('renders the correct case', async () => {
   unpatchSomeContext();
   expect(screen.getByTestId("case1-component")).toBeVisible();
 });
-
 ```
+
 
 
 # Installation
