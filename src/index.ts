@@ -273,15 +273,12 @@ if (!packageJson) {
 const VERSION = JSON.parse(packageJson).version;
 
 function getCacheKey(fileData: any, filename: string) {
-  return (
-    Math.random().toString() ||
-    crypto
-      .createHash("md5")
-      .update(VERSION)
-      .update(fileData)
-      .update(getPatchesForFile(filename).toString())
-      .digest()
-  );
+  return crypto
+    .createHash("md5")
+    .update(VERSION)
+    .update(fileData)
+    .update(getPatchesForFile(filename).toString())
+    .digest();
 }
 
 export default {
