@@ -1,6 +1,6 @@
 {
   "name": "jspatch",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "repository": "https://github.com/salazarm/jsmock.git",
