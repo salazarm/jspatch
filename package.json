@@ -7,7 +7,8 @@
   "author": "Marco Salazar <salazarm93@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "prepublish": "rimraf ./build && tsc --outdir build"
+    "prepublish": "rimraf ./build && tsc --outdir build",
+    "test": "yarn run prepublish && yarn jest"
   },
   "dependencies": {
     "@babel/core": "^7.20.2",
@@ -25,6 +26,7 @@
     "babel-plugin-syntax-trailing-function-commas": "^6.22.0",
     "babel-preset-react-app": "^10.0.1",
     "chalk": "^5.1.2",
+    "cross-env": "^7.0.3",
     "exit": "^0.1.2",
     "jest": "^29.3.1",
     "jest-config": "^29.3.1",
