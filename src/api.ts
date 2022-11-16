@@ -1,7 +1,4 @@
-const originalValue: Record<string, () => any> = {};
 const patches: Record<string, { factory: () => any; value: any }> = {};
-
-const noFactory = () => {};
 
 (global as any).__jsMockStubHook = (
   nodeId: string,
@@ -9,16 +6,9 @@ const noFactory = () => {};
 ) => {
   const patch = patches[nodeId];
   if (!patch) {
-    if (!originalValue[nodeId]) {
-      originalValue[nodeId] = originalImplementation();
-    }
-    return originalValue[nodeId];
+    return originalImplementation();
   }
-  if (patch.factory !== noFactory) {
-    patch.value = patch.factory();
-    patch.factory = noFactory;
-  }
-  return patch.value;
+  return patch.factory();
 };
 
 (global as any).__jsMockPatchIdToNodes =

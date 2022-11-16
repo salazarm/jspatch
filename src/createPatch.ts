@@ -43,7 +43,6 @@ export function create(
     ts.isShorthandPropertyAssignment(parentNode) &&
     ts.isIdentifier(originalNode)
   ) {
-    console.log("found short hand");
     return ts.visitNode(parentNode, () => {
       return factory.createPropertyAssignment(
         originalNode.escapedText as string,

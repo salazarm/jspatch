@@ -17,7 +17,7 @@ const babelJestTransformer = babelJest.createTransformer({
   presets: [require.resolve("babel-preset-react-app")],
 });
 
-const DEBUG = true;
+const DEBUG = false;
 
 function forEachChildRecursively(
   sourceFile: ts.SourceFile,
@@ -137,10 +137,10 @@ function filePatcher(program: ts.SourceFile, filename: string) {
       (context) => {
         let didAddStatements = false;
         const visitor: ts.Transformer<ts.Node> = (node: ts.Node) => {
-          if (node.kind === 305 && !didAddStatements) {
+          if (ts.isSourceFile(node) && !didAddStatements) {
             didAddStatements = true;
             // @ts-ignore
-            node.statements.push(
+            node.statements.unshift(
               ...patches
                 .map((patchId: string) =>
                   createPatchIdToNodesAssignmentAST(

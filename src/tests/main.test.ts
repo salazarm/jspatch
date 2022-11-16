@@ -60,4 +60,24 @@ describe("Mock", () => {
 
     unpatch();
   });
+
+  it("can patch short hand property assignment", () => {
+    const unpatch = __patch(
+      "src/tests/example",
+      "useGlobalHookUser.hook",
+      () => patchObj
+    );
+
+    let hook = useGlobalHookUser();
+    expect(hook).toEqual({
+      hook: patchObj,
+    });
+
+    hook = useGlobalHookUser2();
+    expect(hook).toEqual({
+      hook: notPatched("GlobalHook"),
+    });
+
+    unpatch();
+  });
 });
