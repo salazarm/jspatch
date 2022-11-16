@@ -1,6 +1,6 @@
 {
   "name": "jspatch",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "repository": "https://github.com/salazarm/jspatch.git",
