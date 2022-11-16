@@ -15,10 +15,10 @@ import * as ts from "typescript";
 export function create(
   factory: ts.NodeFactory,
   nodeId: string,
-  originalNode: ts.Node
+  originalNode: ts.Node,
+  parentNode?: ts.Node
 ) {
-  console.log("creating patch", nodeId);
-  return factory.createCallExpression(
+  const patch = factory.createCallExpression(
     factory.createPropertyAccessExpression(
       factory.createIdentifier("global"),
       factory.createIdentifier("__jsMockStubHook")
@@ -36,4 +36,20 @@ export function create(
       ),
     ]
   );
+
+  // If this is a short hand property assignment then we need to expand it.
+  if (
+    parentNode &&
+    ts.isShorthandPropertyAssignment(parentNode) &&
+    ts.isIdentifier(originalNode)
+  ) {
+    console.log("found short hand");
+    return ts.visitNode(parentNode, () => {
+      return factory.createPropertyAssignment(
+        originalNode.escapedText as string,
+        patch
+      );
+    });
+  }
+  return patch;
 }

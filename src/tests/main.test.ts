@@ -1,5 +1,5 @@
-import api from '../api';
-import { useGlobalHookUser, useGlobalHookUser2 } from './example';
+import api from "../api";
+import { useGlobalHookUser, useGlobalHookUser2 } from "./example";
 
 const { __patch } = api;
 

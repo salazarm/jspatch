@@ -17,7 +17,7 @@ const babelJestTransformer = babelJest.createTransformer({
   presets: [require.resolve("babel-preset-react-app")],
 });
 
-const DEBUG = false;
+const DEBUG = true;
 
 function forEachChildRecursively(
   sourceFile: ts.SourceFile,
@@ -152,15 +152,16 @@ function filePatcher(program: ts.SourceFile, filename: string) {
                 .flat()
             );
           }
+          const newNode = ts.visitEachChild(node, visitor, context);
           if (nodesToPatch.has(node)) {
-            return createPatch(context.factory, getNodeId(node), node);
+            return createPatch(
+              context.factory,
+              getNodeId(node),
+              newNode,
+              getNodeParent(node)
+            );
           }
-          try {
-            return ts.visitEachChild(node, visitor, context);
-          } catch (e) {
-            console.error("JSPatch: Failed to replace node in file", filename);
-            return ts.visitEachChild(node, visitor, context);
-          }
+          return newNode;
         };
         return visitor;
       },
