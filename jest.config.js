@@ -8,7 +8,7 @@ module.exports = {
   },
   collectCoverageFrom: [
     "**/*.{js,jsx,ts,tsx}",
-    "!/node_modules/s**",
+    "!/node_modules/**",
     "!/build/**",
   ],
 };

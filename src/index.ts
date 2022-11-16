@@ -1,10 +1,13 @@
-import * as ts from "typescript";
-import * as crypto from "crypto";
-import * as fs from "fs";
-import * as path from "node:path";
-import * as babelJest from "babel-jest";
+import * as babelJest from 'babel-jest';
+import * as crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'node:path';
+import * as ts from 'typescript';
 
-import api from "./api";
+import api from './api';
+import { create as createPatch } from './createPatch';
+import { create as createPatchIdToNodesAssignmentAST } from './createPatchIdToNodesAssignmentAST';
+
 import type { TransformOptions } from "@jest/transform";
 import type { TransformOptions as BabelTransformOptions } from "@babel/core";
 
@@ -98,18 +101,6 @@ function getNodeId(node: ts.Node): string {
   return nodeToId.get(node)!;
 }
 
-const patchIdToNodesFile = __dirname + "/patchIdToNodesTemplate.js";
-const patchIdToNodesProgram = ts.createProgram([patchIdToNodesFile], {
-  allowJs: true,
-});
-const patchIdToNodesSourceFile =
-  patchIdToNodesProgram.getSourceFile(patchIdToNodesFile);
-
-const patchFile = __dirname + "/patchTemplate.js";
-const program = ts.createProgram([patchFile], { allowJs: true });
-
-const patchSourceFile = program.getSourceFile(patchFile);
-
 function filePatcher(program: ts.SourceFile, filename: string) {
   const patches = getPatchesForFile(filename);
   if (!patches.length) {
@@ -141,93 +132,6 @@ function filePatcher(program: ts.SourceFile, filename: string) {
     console.log("patchIdToNodes", patchIdToNodes);
   }
 
-  const patchIdToNodeIds: Record<string, string[]> = {};
-
-  patches.forEach((patchID) => {
-    patchIdToNodes[patchID].forEach((node) => {
-      if (nodeToId.has(node)) {
-        patchIdToNodeIds[patchID] = patchIdToNodeIds[patchID] || [];
-        patchIdToNodeIds[patchID].push(getNodeId(node));
-        return;
-      }
-      const nodeID = getNodeId(node);
-      patchIdToNodeIds[patchID] = patchIdToNodeIds[patchID] || [];
-      patchIdToNodeIds[patchID].push(nodeID);
-
-      let patchNode;
-      const result = ts.transform(patchSourceFile!, [
-        (context) => {
-          const visitor = (visitingNode: ts.Node): ts.Node => {
-            if (ts.isStringLiteral(visitingNode)) {
-              switch (visitingNode.text) {
-                case "{PATCH_ID}": {
-                  return context.factory.createStringLiteral(nodeID);
-                }
-                case "{ORIGINAL_IMPLEMENTATION_PLACEHOLDER}": {
-                  return node;
-                }
-              }
-            }
-            return ts.visitEachChild(visitingNode, visitor, context);
-          };
-          return visitor;
-        },
-      ]);
-      // @ts-ignore
-      const modifiedSourceFile = result.transformed[0].getSourceFile(filename);
-      // @ts-ignore
-      ts.forEachChildRecursively(modifiedSourceFile, (node: ts.Node) => {
-        // @ts-ignore
-        if (node?.arguments?.[0]?.text == nodeID) {
-          patchNode = node;
-        }
-      });
-
-      if (!patchNode) {
-        throw new Error(
-          "Unexpected error, could not find patched template for node id:" +
-            nodeID
-        );
-      }
-      patchesToApply.set(node, patchNode);
-    });
-  });
-
-  if (DEBUG) {
-    console.log("patchIdToNodeIds", patchIdToNodeIds);
-  }
-
-  const patchIdToNodesStatements: ts.SourceFile[] = [];
-  patches.forEach((patchID) => {
-    patchIdToNodesStatements.push(
-      ts
-        .transform(patchIdToNodesSourceFile!, [
-          (context) => {
-            const visitor = (visitingNode: ts.Node): ts.Node => {
-              if (ts.isStringLiteral(visitingNode)) {
-                switch (visitingNode.text) {
-                  case "{PATCH_ID}": {
-                    return context.factory.createStringLiteral(patchID);
-                  }
-                  case "{NODE_IDS}": {
-                    return context.factory.createArrayLiteralExpression(
-                      patchIdToNodeIds[patchID]?.map((id) =>
-                        context.factory.createStringLiteral(id)
-                      ) || []
-                    );
-                  }
-                }
-              }
-              return ts.visitEachChild(visitingNode, visitor, context);
-            };
-            return visitor;
-          },
-        ])
-        // @ts-ignore
-        .transformed[0].getSourceFile(patchIdToNodesSourceFile)
-    );
-  });
-
   const transformed = ts
     .transform(program, [
       (context) => {
@@ -236,10 +140,20 @@ function filePatcher(program: ts.SourceFile, filename: string) {
           if (node.kind === 305 && !didAddStatements) {
             didAddStatements = true;
             // @ts-ignore
-            node.statements.push(...patchIdToNodesStatements);
+            node.statements.push(
+              ...patches.map((patchId: string) =>
+                createPatchIdToNodesAssignmentAST(
+                  context.factory,
+                  patchId,
+                  patchIdToNodes[patchId].map((node) => getNodeId(node))
+                )
+              )
+            );
           }
           if (patchesToApply.has(node)) {
-            return patchesToApply.get(node);
+            return patchesToApply.get(
+              createPatch(context.factory, getNodeId(node), node)
+            );
           }
           try {
             return ts.visitEachChild(node, visitor, context);

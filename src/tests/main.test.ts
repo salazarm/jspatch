@@ -1,49 +1,61 @@
-import api from "../api";
-
-import { useCar, useOtherCar } from "./car";
+import api from '../api';
+import { useGlobalHookUser, useGlobalHookUser2 } from './example';
 
 const { __patch } = api;
 
-const NOT_PATCHED = "Not patched!";
-const obj = Symbol();
+const notPatched = (name: string) => `${name} not patched!`;
+const patchObj = Symbol();
 describe("Mock", () => {
   afterEach(() => {
     jest.resetModules();
   });
 
   it("can patch a value at the global scope", () => {
-    const result1 = useCar();
+    const result1 = useGlobalHookUser();
     expect(result1).toEqual({
-      randomHook: NOT_PATCHED,
+      hook: notPatched("GlobalHook"),
     });
 
-    const unpatch = __patch("src/tests/car", "useHook", () => () => obj);
+    const unpatch = __patch(
+      "src/tests/example",
+      "useGlobalHook",
+      () => () => patchObj
+    );
 
-    const result2 = useCar();
+    const result2 = useGlobalHookUser();
     expect(result2).toEqual({
-      randomHook: obj,
+      hook: patchObj,
+    });
+
+    const result3 = useGlobalHookUser2();
+    expect(result3).toEqual({
+      hook: patchObj,
     });
 
     unpatch();
 
-    const result3 = useCar();
-    expect(result3).toEqual({
-      randomHook: NOT_PATCHED,
+    const result4 = useGlobalHookUser();
+    expect(result4).toEqual({
+      hook: notPatched("GlobalHook"),
     });
   });
 
   it("can patch a value at the local scope", () => {
-    // useHook` is patched for useCar but useOtherCar is unaffected
-    const unpatch = __patch("src/tests/car", "useCar.useHook", () => () => obj);
+    // useHook` is patched for useGlobalHookUser but useGlobalHookUser2 is unaffected
+    const unpatch = __patch(
+      "src/tests/example",
+      "useGlobalHookUser.useGlobalHook",
+      () => () => patchObj
+    );
 
-    const car = useCar();
-    const otherCar = useOtherCar();
-    expect(car).toEqual({
-      randomHook: obj,
+    let hook = useGlobalHookUser();
+    expect(hook).toEqual({
+      hook: patchObj,
     });
 
-    expect(otherCar).toEqual({
-      randomHook: NOT_PATCHED,
+    hook = useGlobalHookUser2();
+    expect(hook).toEqual({
+      hook: notPatched("GlobalHook"),
     });
 
     unpatch();
