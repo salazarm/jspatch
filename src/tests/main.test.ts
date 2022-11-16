@@ -60,4 +60,30 @@ describe("Mock", () => {
 
     unpatch();
   });
+
+  it("can patch an identifier directly", () => {
+    const unpatch = __patch(
+      "src/tests/example",
+      "useGlobalHookUser.hook",
+      () => patchObj
+    );
+    let hook = useGlobalHookUser();
+    expect(hook).toEqual(patchObj);
+
+    hook = useGlobalHookUser2();
+    expect(hook).toEqual(notPatched("GlobalHook"));
+
+    // Patch again without unpatching.
+    const unpatch2 = __patch(
+      "src/tests/example",
+      "useGlobalHook",
+      () => patchObj
+    );
+
+    hook = useGlobalHookUser2();
+    expect(hook).toEqual({ hook: patchObj });
+
+    unpatch();
+    unpatch2();
+  });
 });

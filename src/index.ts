@@ -17,7 +17,7 @@ const babelJestTransformer = babelJest.createTransformer({
   presets: [require.resolve("babel-preset-react-app")],
 });
 
-const DEBUG = false;
+const DEBUG = true;
 
 function forEachChildRecursively(
   sourceFile: ts.SourceFile,
@@ -128,10 +128,6 @@ function filePatcher(program: ts.SourceFile, filename: string) {
     patchIdToNodes[patchID] = nodesToPatch;
   });
 
-  if (DEBUG) {
-    console.log("patchIdToNodes", patchIdToNodes);
-  }
-
   const transformed = ts
     .transform(program, [
       (context) => {
@@ -152,7 +148,12 @@ function filePatcher(program: ts.SourceFile, filename: string) {
           }
           if (patchesToApply.has(node)) {
             return patchesToApply.get(
-              createPatch(context.factory, getNodeId(node), node)
+              createPatch(
+                context.factory,
+                getNodeId(node),
+                node as any,
+                getNodeParent(node)!
+              )
             );
           }
           try {
