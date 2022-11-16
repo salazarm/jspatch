@@ -3,7 +3,7 @@ import * as ts from "typescript";
 /**
  * Generated using this template:
  * export function __PATCH_TEMPLATE__() {
- *  global.__jsMockStubHook(
+ *  global.__jsPatchHook(
  *    "{nodeId}",
  *    () => {originalNode}
  *  );
@@ -21,7 +21,7 @@ export function create(
   const patch = factory.createCallExpression(
     factory.createPropertyAccessExpression(
       factory.createIdentifier("global"),
-      factory.createIdentifier("__jsMockStubHook")
+      factory.createIdentifier("__jsPatchHook")
     ),
     undefined,
     [

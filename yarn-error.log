@@ -27,7 +27,7 @@ npm manifest:
     "version": "0.0.1",
     "main": "build/index.js",
     "types": "index.d.ts",
-    "repository": "https://github.com/salazarm/jsmock.git",
+    "repository": "https://github.com/salazarm/jspatch.git",
     "author": "Marco Salazar <salazarm93@gmail.com>",
     "license": "MIT",
     "script": {

@@ -3,9 +3,9 @@ import * as ts from "typescript";
 const DEBUG = false;
 /**
  * Generated using this template:
- * global.__jsMockPatchIdToNodes = global.__jsMockPatchIdToNodes || {};
- * global.__jsMockPatchIdToNodes["{PATCH_ID}"] = global.__jsMockPatchIdToNodes["{PATCH_ID}"] || [];
- * global.__jsMockPatchIdToNodes["{PATCH_ID}"].push(...["{NODE_IDS}"]);
+ * global.__jsPatchIdToNodes = global.__jsPatchIdToNodes || {};
+ * global.__jsPatchIdToNodes["{PATCH_ID}"] = global.__jsPatchIdToNodes["{PATCH_ID}"] || [];
+ * global.__jsPatchIdToNodes["{PATCH_ID}"].push(...["{NODE_IDS}"]);
  *
  * on https://ts-ast-viewer.com/
  */
@@ -19,13 +19,13 @@ export function create(
       factory.createBinaryExpression(
         factory.createPropertyAccessExpression(
           factory.createIdentifier("global"),
-          factory.createIdentifier("__jsMockPatchIdToNodes")
+          factory.createIdentifier("__jsPatchIdToNodes")
         ),
         factory.createToken(ts.SyntaxKind.EqualsToken),
         factory.createBinaryExpression(
           factory.createPropertyAccessExpression(
             factory.createIdentifier("global"),
-            factory.createIdentifier("__jsMockPatchIdToNodes")
+            factory.createIdentifier("__jsPatchIdToNodes")
           ),
           factory.createToken(ts.SyntaxKind.BarBarToken),
           factory.createObjectLiteralExpression([], false)
@@ -37,7 +37,7 @@ export function create(
         factory.createElementAccessExpression(
           factory.createPropertyAccessExpression(
             factory.createIdentifier("global"),
-            factory.createIdentifier("__jsMockPatchIdToNodes")
+            factory.createIdentifier("__jsPatchIdToNodes")
           ),
           factory.createStringLiteral(patchId)
         ),
@@ -46,7 +46,7 @@ export function create(
           factory.createElementAccessExpression(
             factory.createPropertyAccessExpression(
               factory.createIdentifier("global"),
-              factory.createIdentifier("__jsMockPatchIdToNodes")
+              factory.createIdentifier("__jsPatchIdToNodes")
             ),
             factory.createStringLiteral(patchId)
           ),
@@ -61,7 +61,7 @@ export function create(
           factory.createElementAccessExpression(
             factory.createPropertyAccessExpression(
               factory.createIdentifier("global"),
-              factory.createIdentifier("__jsMockPatchIdToNodes")
+              factory.createIdentifier("__jsPatchIdToNodes")
             ),
             factory.createStringLiteral(patchId)
           ),
@@ -91,10 +91,10 @@ export function create(
           ),
           undefined,
           [
-            factory.createStringLiteral("global.__jsMockPatchIdToNodes"),
+            factory.createStringLiteral("global.__jsPatchIdToNodes"),
             factory.createPropertyAccessExpression(
               factory.createIdentifier("global"),
-              factory.createIdentifier("__jsMockPatchIdToNodes")
+              factory.createIdentifier("__jsPatchIdToNodes")
             ),
           ]
         )

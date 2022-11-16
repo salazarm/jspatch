@@ -1,6 +1,6 @@
 const patches: Record<string, { factory: () => any; value: any }> = {};
 
-(global as any).__jsMockStubHook = (
+(global as any).__jsPatchHook = (
   nodeId: string,
   originalImplementation: () => any
 ) => {
@@ -11,12 +11,11 @@ const patches: Record<string, { factory: () => any; value: any }> = {};
   return patch.factory();
 };
 
-(global as any).__jsMockPatchIdToNodes =
-  (global as any).__jsMockPatchIdToNodes || {};
+(global as any).__jsPatchIdToNodes = (global as any).__jsPatchIdToNodes || {};
 
 function __patch(filepath: string, varpath: string, factory: () => any) {
   const patchId = getKey(filepath, varpath);
-  const nodesToPatch = (global as any).__jsMockPatchIdToNodes[patchId];
+  const nodesToPatch = (global as any).__jsPatchIdToNodes[patchId];
   const obj = { factory, value: null };
   if (nodesToPatch) {
     nodesToPatch.forEach((nodeId: string) => {
