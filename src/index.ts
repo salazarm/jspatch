@@ -17,7 +17,7 @@ const babelJestTransformer = babelJest.createTransformer({
   presets: [require.resolve("babel-preset-react-app")],
 });
 
-const DEBUG = false;
+const DEBUG = true;
 
 function forEachChildRecursively(
   sourceFile: ts.SourceFile,
@@ -152,16 +152,20 @@ function filePatcher(program: ts.SourceFile, filename: string) {
                 .flat()
             );
           }
-          const newNode = ts.visitEachChild(node, visitor, context);
-          if (nodesToPatch.has(node)) {
-            return createPatch(
-              context.factory,
-              getNodeId(node),
-              newNode,
-              getNodeParent(node)
-            );
+          try {
+            const newNode = ts.visitEachChild(node, visitor, context);
+            if (nodesToPatch.has(node)) {
+              return createPatch(
+                context.factory,
+                getNodeId(node),
+                newNode,
+                getNodeParent(node)
+              );
+            }
+            return newNode;
+          } catch (e) {
+            return node;
           }
-          return newNode;
         };
         return visitor;
       },
@@ -199,8 +203,18 @@ function getNodesToPatchRecursively(
            * // const someFunction = () => {..} ;
            */
           nodes.push(parent.getChildren()[2]);
-        } else if (parent && !ts.isImportSpecifier(parent)) {
+        } else if (
+          parent &&
+          !ts.isImportSpecifier(parent) &&
+          !ts.isImportOrExportSpecifier(parent) &&
+          !ts.isExportDeclaration(parent) &&
+          !ts.isPropertyAccessExpression(parent) &&
+          !ts.isFunctionDeclaration(parent)
+        ) {
+          console.log("parent:", node.parent);
           nodes.push(node);
+        } else {
+          console.log("skipping", { node, parent });
         }
       }
     }

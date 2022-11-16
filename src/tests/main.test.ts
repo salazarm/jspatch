@@ -80,4 +80,19 @@ describe("Mock", () => {
 
     unpatch();
   });
+
+  it("can patch exported identifiers after reset modules.", () => {
+    let useGlobalHookUser = require("./example").useGlobalHookUser;
+    expect(useGlobalHookUser()).toEqual({ hook: notPatched("GlobalHook") });
+    const unpatch = __patch(
+      "src/tests/example",
+      "useGlobalHookUser",
+      () => () => patchObj
+    );
+    expect(useGlobalHookUser()).toEqual({ hook: notPatched("GlobalHook") });
+    jest.resetModules();
+    useGlobalHookUser = require("./example").useGlobalHookUser;
+    expect(useGlobalHookUser()).toEqual(patchObj);
+    unpatch();
+  });
 });
