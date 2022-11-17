@@ -99,3 +99,5 @@ const { __patch } = jspatch;
 
 __patch("path/to/file", "component.useUserEmailHook", () => "test@email.com"
 ```
+
+Note: For now, if you're using this library and are patching in multiple test files then you will need to either (1). Make your patches happen in a single file that is executed as part of jest global setup. or (2) use `--no-cache`. This is only temporary as I work on a test-runner that can handle caching correctly.
