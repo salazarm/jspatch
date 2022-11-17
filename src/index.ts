@@ -17,7 +17,7 @@ const babelJestTransformer = babelJest.createTransformer({
   presets: [require.resolve("babel-preset-react-app")],
 });
 
-const DEBUG = true;
+const DEBUG = false;
 
 function forEachChildRecursively(
   sourceFile: ts.SourceFile,
@@ -142,11 +142,12 @@ function filePatcher(program: ts.SourceFile, filename: string) {
             // @ts-ignore
             node.statements.unshift(
               ...patches
-                .map((patchId: string) =>
+                .map((patchId: string, index: number) =>
                   createPatchIdToNodesAssignmentAST(
                     context.factory,
                     patchId,
-                    patchIdToNodes[patchId].map((node) => getNodeId(node))
+                    patchIdToNodes[patchId].map((node) => getNodeId(node)),
+                    index === 0
                   )
                 )
                 .flat()
@@ -211,10 +212,7 @@ function getNodesToPatchRecursively(
           !ts.isPropertyAccessExpression(parent) &&
           !ts.isFunctionDeclaration(parent)
         ) {
-          console.log("parent:", node.parent);
           nodes.push(node);
-        } else {
-          console.log("skipping", { node, parent });
         }
       }
     }

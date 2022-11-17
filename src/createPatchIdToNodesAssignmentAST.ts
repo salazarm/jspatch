@@ -12,26 +12,32 @@ const DEBUG = false;
 export function create(
   factory: ts.NodeFactory,
   patchId: string,
-  nodeIds: string[]
+  nodeIds: string[],
+  includePremable: boolean
 ) {
-  const statements = [
-    factory.createExpressionStatement(
-      factory.createBinaryExpression(
-        factory.createPropertyAccessExpression(
-          factory.createIdentifier("global"),
-          factory.createIdentifier("__jsPatchIdToNodes")
-        ),
-        factory.createToken(ts.SyntaxKind.EqualsToken),
+  let statements = [];
+  if (includePremable) {
+    statements.push(
+      factory.createExpressionStatement(
         factory.createBinaryExpression(
           factory.createPropertyAccessExpression(
             factory.createIdentifier("global"),
             factory.createIdentifier("__jsPatchIdToNodes")
           ),
-          factory.createToken(ts.SyntaxKind.BarBarToken),
-          factory.createObjectLiteralExpression([], false)
+          factory.createToken(ts.SyntaxKind.EqualsToken),
+          factory.createBinaryExpression(
+            factory.createPropertyAccessExpression(
+              factory.createIdentifier("global"),
+              factory.createIdentifier("__jsPatchIdToNodes")
+            ),
+            factory.createToken(ts.SyntaxKind.BarBarToken),
+            factory.createObjectLiteralExpression([], false)
+          )
         )
       )
-    ),
+    );
+  }
+  statements.push(
     factory.createExpressionStatement(
       factory.createBinaryExpression(
         factory.createElementAccessExpression(
@@ -77,8 +83,8 @@ export function create(
           ),
         ]
       )
-    ),
-  ];
+    )
+  );
 
   if (DEBUG) {
     return [

@@ -5,6 +5,7 @@ const { __patch } = api;
 
 const notPatched = (name: string) => `${name} not patched!`;
 const patchObj = Symbol();
+
 describe("Mock", () => {
   afterEach(() => {
     jest.resetModules();
@@ -81,18 +82,18 @@ describe("Mock", () => {
     unpatch();
   });
 
-  it("can patch exported identifiers after reset modules.", () => {
+  it("can not patch exported identifiers in modules that are already loaded", () => {
     let useGlobalHookUser = require("./example").useGlobalHookUser;
     expect(useGlobalHookUser()).toEqual({ hook: notPatched("GlobalHook") });
     const unpatch = __patch(
-      "src/tests/example",
+      "src/tests/example.ts",
       "useGlobalHookUser",
       () => () => patchObj
     );
-    expect(useGlobalHookUser()).toEqual({ hook: notPatched("GlobalHook") });
     jest.resetModules();
     useGlobalHookUser = require("./example").useGlobalHookUser;
-    expect(useGlobalHookUser()).toEqual(patchObj);
+    expect(useGlobalHookUser()).toEqual({ hook: notPatched("GlobalHook") });
+
     unpatch();
   });
 });

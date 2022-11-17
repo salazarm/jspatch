@@ -25,6 +25,6 @@
     "target": "ESNext",
     "checkJs": false
   },
-  "include": ["src/**/*", "tests/**/*"],
-  "exclude": ["build/**/*"]
+  "include": ["src/**/*",],
+  "exclude": ["build/**/*", "**/*.test.*"]
 }
