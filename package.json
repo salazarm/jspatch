@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "prepublish": "rimraf ./build && tsc --outdir build",
-    "test": "yarn run prepublish && yarn jest --no-cache"
+    "test": "yarn run prepublish && yarn jest"
   },
   "dependencies": {
     "@babel/core": "^7.20.2",

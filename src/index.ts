@@ -210,7 +210,9 @@ function getNodesToPatchRecursively(
           !ts.isImportOrExportSpecifier(parent) &&
           !ts.isExportDeclaration(parent) &&
           !ts.isPropertyAccessExpression(parent) &&
-          !ts.isFunctionDeclaration(parent)
+          !ts.isFunctionDeclaration(parent) &&
+          !ts.isBindingElement(parent) &&
+          !ts.isShorthandPropertyAssignment(parent)
         ) {
           nodes.push(node);
         }
