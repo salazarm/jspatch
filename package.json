@@ -1,6 +1,6 @@
 {
   "name": "jspatch",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "repository": "https://github.com/salazarm/jspatch.git",
@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "prepublish": "rimraf ./build && tsc --outdir build",
-    "test": "yarn run prepublish && yarn jest"
+    "test": "yarn run prepublish && yarn jest --no-cache"
   },
   "dependencies": {
     "@babel/core": "^7.20.2",

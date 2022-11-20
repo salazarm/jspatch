@@ -1,9 +1,11 @@
-const notImplemented = (name: string) => (..._args: any[]) => {
-  return `${name} not patched!`;
-};
-const useGlobalHook = notImplemented('GlobalHook');
+const notImplemented =
+  (name: string) =>
+  (..._args: any[]) => {
+    return `${name} not patched!`;
+  };
+const useGlobalHook = notImplemented("GlobalHook");
 
-export const useExportedHook = notImplemented('ExportedHook');
+export const useExportedHook = notImplemented("ExportedHook");
 
 export function useGlobalHookUser() {
   const hook = useGlobalHook();
@@ -21,20 +23,19 @@ export function useExportedHookUser() {
 }
 
 export class TestClass {
-  readonly testProp = notImplemented('readOnlyTestProp');
-  
+  readonly testProp = notImplemented("readOnlyTestProp");
+
   getHook() {
-    const hook = notImplemented('TestClass:getHook');
+    const hook = notImplemented("TestClass:getHook");
     return hook;
-  } 
+  }
 
   getHookNoConst() {
-    return notImplemented('TestClass:getHookNoConst')
-  } 
+    return notImplemented("TestClass:getHookNoConst");
+  }
   getHookArgInClosure() {
     return ((fn) => {
       return fn;
-    })(notImplemented('TestClass:getHookArgInClosure'))
+    })(notImplemented("TestClass:getHookArgInClosure"));
   }
 }
-

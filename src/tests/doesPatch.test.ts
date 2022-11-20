@@ -4,7 +4,7 @@ import { useGlobalHookUser, useGlobalHookUser2 } from "./example";
 const { __patch } = api;
 
 const notPatched = (name: string) => `${name} not patched!`;
-const patchObj = Symbol();
+const patchObj = "doesPatch.test.ts";
 
 describe("Mock", () => {
   afterEach(() => {
@@ -13,6 +13,7 @@ describe("Mock", () => {
 
   it("can patch a value at the global scope", () => {
     const result1 = useGlobalHookUser();
+
     expect(result1).toEqual({
       hook: notPatched("GlobalHook"),
     });
