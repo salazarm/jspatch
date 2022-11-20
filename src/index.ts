@@ -198,14 +198,9 @@ function getNodesToPatchRecursively(
           )
         );
       } else {
-        if (parent && ts.isVariableDeclaration(parent)) {
-          /**
-           * If this is a declaration then patch the value instead of the identifier.
-           * // const someFunction = () => {..} ;
-           */
-          nodes.push(parent.getChildren()[2]);
-        } else if (
+        if (
           parent &&
+          !ts.isVariableDeclaration(parent) &&
           !ts.isImportSpecifier(parent) &&
           !ts.isImportOrExportSpecifier(parent) &&
           !ts.isExportDeclaration(parent) &&

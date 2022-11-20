@@ -1,5 +1,4 @@
 import api from "../api";
-debugger;
 import { useGlobalHookUser, useGlobalHookUser2 } from "./example";
 
 const { __patch } = api;

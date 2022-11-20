@@ -1,4 +1,7 @@
-const patches: Record<string, { factory: () => any; value: any }> = {};
+const patches: Record<
+  string,
+  { factory: (originalImpl: () => any) => any; value: any }
+> = {};
 
 (global as any).__jsPatchHook = (
   nodeId: string,
@@ -8,7 +11,7 @@ const patches: Record<string, { factory: () => any; value: any }> = {};
   if (!patch) {
     return originalImplementation();
   }
-  return patch.factory();
+  return patch.factory(() => originalImplementation());
 };
 
 (global as any).__jsPatchIdToNodes = (global as any).__jsPatchIdToNodes || {};
