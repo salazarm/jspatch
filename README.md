@@ -24,28 +24,9 @@ export function MyComponent() {
 
 Before this library you would have to setup `SomeContext` and hook into the implementation of `useDataProvider` so that you can make it return data corresponding to the state you're trying to test.
 
-Now you can directly mock your variables:
 
-```javascript
-it('renders the correct case', async () => {
-  // Patch the hooks directly
-  const unpatchDataProvider = __patch('src/components/MyComponent', 'MyComponent.someContextState', () => CASE_1_STATE);
-  const unpatchSomeContext = __patch('src/components/MyComponent', 'MyComponent.state', () =>SOME_CONTEXT_STATE_FIXTURE);
-  
-  // Render the component
-  await act(() => {
-    render(<MyComponent />
-  });
-  
-  // Remember to unpatch for the next test!
-  unpatchDataProvider();
-  unpatchSomeContext();
-  expect(screen.getByTestId("case1-component")).toBeVisible();
-});
+Now instead you can dependency inject `useDataProvider` and `useContext` directly regardless of whether its part of a public module API.
 
-```
-
-If you prefer you could also dependency inject `useDataProvider` and `useContext` (if you want to make assertions about arguments passed in):
 ```javascript
 it('renders the correct case', async () => {
   // Patch the hooks directly
