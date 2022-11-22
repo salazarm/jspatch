@@ -1,4 +1,4 @@
-# jspatch 
+# ![jpatchpsd](https://user-images.githubusercontent.com/2286579/203386347-9b5e1f05-79d0-41a9-83b9-acb1bbac6992.png)
 
 JSPatch is a library inspired by [mock.patch](https://docs.python.org/3/library/unittest.mock.html#patch) from python. It leverages Jest code transformations in order to modify files under test so that we can dynamically patch arbitrary identifiers.
 
