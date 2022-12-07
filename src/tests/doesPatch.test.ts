@@ -83,6 +83,64 @@ describe("Mock", () => {
     unpatch();
   });
 
+  it("passes original implementation as an argument for monkey patching and doesnt load the code unless its called", () => {
+    const unpatchGlobalHook = __patch(
+      "src/tests/example",
+      "useGlobalHook",
+      (originalImplementation) => {
+        ogImplementation = originalImplementation;
+        return originalImplementation();
+      }
+    );
+    let ogImplementation;
+    let ogHookImplementation;
+
+    const unpatch = __patch(
+      "src/tests/example",
+      "useGlobalHookUser.hook",
+      (originalHookImplementation) => {
+        return hookPatch(originalHookImplementation);
+      }
+    );
+
+    // TODO: Make this behavior more sane
+    let hookPatch = (originalHookImplementation) => {
+      ogHookImplementation = originalHookImplementation;
+      const value = originalHookImplementation();
+      expect(value).toEqual(notPatched("GlobalHook"));
+
+      hookPatch = hookPatch2;
+
+      return patchObj;
+    };
+
+    let hookPatch2 = (originalImplementation) => {
+      const value = originalImplementation();
+
+      expect(value).toEqual(patchObj);
+
+      return originalImplementation();
+    };
+
+    let hook = useGlobalHookUser();
+
+    expect(hook).toEqual({
+      hook: patchObj,
+    });
+
+    hook = useGlobalHookUser2();
+    expect(hook).toEqual({
+      hook: notPatched("GlobalHook"),
+    });
+
+    unpatch();
+    unpatchGlobalHook();
+
+    console.log("after unpatching");
+
+    expect(ogImplementation()()).toEqual(notPatched("GlobalHook"));
+  });
+
   it("can not patch exported identifiers in modules that are already loaded", () => {
     let useGlobalHookUser = require("./example").useGlobalHookUser;
     expect(useGlobalHookUser()).toEqual({ hook: notPatched("GlobalHook") });

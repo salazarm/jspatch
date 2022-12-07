@@ -2,6 +2,8 @@
 
 JSPatch is a library inspired by [mock.patch](https://docs.python.org/3/library/unittest.mock.html#patch) from python. It leverages Jest code transformations in order to modify files under test so that we can dynamically patch arbitrary identifiers.
 
+![image](https://user-images.githubusercontent.com/2286579/205362096-3daf7f7b-bb3c-4ddf-b7bd-bdf74e0f9069.png)
+
 
 Say you have this component:
 ```javascript

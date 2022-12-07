@@ -31,6 +31,7 @@ function forEachChildRecursively(
       setNodeParent(child, node);
       visit(sourceFile, child, node);
     }
+    return node;
   }
 }
 
@@ -44,27 +45,25 @@ function process(
   }
   const isTest = filename.includes(".test.");
   const program = ts.createSourceFile(filename, src, ts.ScriptTarget.Latest);
-  let modifiedProgram;
+  let modifiedProgram = program;
   if (isTest) {
     testFilePatchRecorder(program);
-    modifiedProgram = program; // we dont modify it
-    if (DEBUG) {
-      console.log("found patches", patches);
-    }
   } else {
     modifiedProgram = filePatcher(program, filename);
   }
 
-  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+  if (modifiedProgram === program) {
+    return babelJestTransformer.process(src, filename, options);
+  }
 
-  const modifiedSource = printer.printNode(
-    ts.EmitHint.Unspecified,
-    modifiedProgram,
-    modifiedProgram
-  );
-  if (DEBUG && getPatchesForFile(filename).length) {
+  const modifiedSource = ts
+    .createPrinter()
+    .printNode(ts.EmitHint.SourceFile, modifiedProgram, modifiedProgram);
+
+  if (DEBUG) {
     console.log(modifiedSource);
   }
+
   return babelJestTransformer.process(modifiedSource, filename, options);
 }
 
@@ -113,8 +112,8 @@ function filePatcher(program: ts.SourceFile, filename: string) {
     console.log("has patches", filename);
   }
 
-  const patchIdToNodes: Record<string, ts.Node[]> = {};
-  const nodesToPatch = new Set<ts.Node>();
+  const patchIdToNodes: Record<string, string[]> = {};
+  const nodesToPatch = new Set<string>();
 
   patches.forEach((patchID) => {
     const [_, patch] = patchID.split("|");
@@ -146,7 +145,7 @@ function filePatcher(program: ts.SourceFile, filename: string) {
                   createPatchIdToNodesAssignmentAST(
                     context.factory,
                     patchId,
-                    patchIdToNodes[patchId].map((node) => getNodeId(node)),
+                    patchIdToNodes[patchId],
                     index === 0
                   )
                 )
@@ -155,7 +154,7 @@ function filePatcher(program: ts.SourceFile, filename: string) {
           }
           try {
             const newNode = ts.visitEachChild(node, visitor, context);
-            if (nodesToPatch.has(node)) {
+            if (nodesToPatch.has(getNodeId(node))) {
               return createPatch(
                 context.factory,
                 getNodeId(node),
@@ -183,7 +182,7 @@ function getNodesToPatchRecursively(
   pathIndex: number,
   sourceFile: ts.SourceFile
 ) {
-  let nodes: ts.Node[] = [];
+  let nodes: string[] = [];
   const nextBinding = variableSelector[pathIndex];
   forEachChildRecursively(sourceFile, parentNode, (node: ts.Node) => {
     const parent = getNodeParent(node)!;
@@ -203,7 +202,7 @@ function getNodesToPatchRecursively(
            * If this is a declaration then patch the value instead of the identifier.
            * // const someFunction = () => {..} ;
            */
-          nodes.push(parent.getChildren()[2]);
+          nodes.push(getNodeId(parent.getChildren()[2]));
         } else if (
           parent &&
           !ts.isImportSpecifier(parent) &&
@@ -213,7 +212,7 @@ function getNodesToPatchRecursively(
           !ts.isFunctionDeclaration(parent) &&
           !ts.isBindingElement(parent)
         ) {
-          nodes.push(node);
+          nodes.push(getNodeId(node));
         }
       }
     }
